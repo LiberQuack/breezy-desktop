@@ -55,7 +55,7 @@ class StateManager(GObject.GObject):
         self.connected_device_name = None
         self.license_action_needed = False
         self.license_action_needed_seconds = 0
-        self.confirmed_token = False
+        self.confirmed_token = True
         self.license_present = False
         self.enabled_features = []
         self.device_supports_sbs = False
@@ -78,7 +78,6 @@ class StateManager(GObject.GObject):
         if license_view:
             if not self.license_present:
                 self.set_property('license-present', True)
-            self.confirmed_token = license_view.get('confirmed_token') == True
             action_needed_details = license_view.get('action_needed')
             action_needed_seconds = action_needed_details.get('seconds') if action_needed_details else None
 

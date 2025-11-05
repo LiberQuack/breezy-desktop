@@ -14,8 +14,6 @@ class LicenseDialogContent(Gtk.Box):
 
     tiers = Gtk.Template.Child()
     features = Gtk.Template.Child()
-    request_token = Gtk.Template.Child()
-    verify_token = Gtk.Template.Child()
     donation_info = Gtk.Template.Child()
 
     def __init__(self, refresh_license_button):
@@ -33,9 +31,6 @@ class LicenseDialogContent(Gtk.Box):
         StateManager.get_instance().connect('notify::license-action-needed', self._handle_license)
         self._handle_license(StateManager.get_instance())
 
-        self.request_token.connect('apply', self._on_request_token)
-        self.verify_token.connect('apply', self._on_verify_token)
-
         self.no_license = NoLicense(hide_refresh_button = True)
 
     def _refresh_license(self, widget):
@@ -50,8 +45,6 @@ class LicenseDialogContent(Gtk.Box):
         self.refresh_license_button.set_sensitive(False)
 
         license_view = state_manager.state['ui_view'].get('license', {})
-        self.request_token.set_visible(not state_manager.confirmed_token)
-        self.verify_token.set_visible(not state_manager.confirmed_token)
 
         for child in self.tiers:
             self.tiers.remove(child)
@@ -77,19 +70,3 @@ class LicenseDialogContent(Gtk.Box):
             self.tiers.append(self.no_license)
 
         self.refresh_license_button.set_sensitive(True)
-
-    def _on_request_token(self, widget):
-        email_address = self.request_token.get_text()
-        self.request_token.set_editable(False)
-        if not self.ipc.request_token(email_address):
-            self.request_token.set_editable(True)
-
-    def _on_verify_token(self, widget):
-        token = self.verify_token.get_text()
-        self.request_token.set_editable(False)
-        self.verify_token.set_editable(False)
-        if self.ipc.verify_token(token):
-            self.ipc.write_control_flags({'refresh_device_license': True})
-        else:
-            self.request_token.set_editable(True)
-            self.verify_token.set_editable(True)

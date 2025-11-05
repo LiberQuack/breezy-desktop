@@ -25,22 +25,6 @@
             </style>
             </object>
         </child>
-        <child>
-            <object class="AdwEntryRow" id="request_token">
-            <property name="visible">0</property>
-            <property name="title" translatable="yes">Request a token</property>
-            <property name="input-purpose">6</property>
-            <property name="show-apply-button">1</property>
-            </object>
-        </child>
-        <child>
-            <object class="AdwEntryRow" id="verify_token">
-            <property name="visible">0</property>
-            <property name="title" translatable="yes">Verify token</property>
-            <property name="input-hints">16</property>
-            <property name="show-apply-button">1</property>
-            </object>
-        </child>
         </object>
     </child>
     <child>
