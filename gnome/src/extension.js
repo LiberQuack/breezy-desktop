@@ -246,7 +246,9 @@ export default class BreezyDesktopExtension extends Extension {
                     framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots,
                     show_banner: Globals.data_stream.show_banner,
-                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled,
+                    focus_mode: this.settings.get_string('focus-mode'),
+                    zoom_on_focus_enabled: this.settings.get_boolean('zoom-on-focus-enabled')
                 });
 
                 this._virtual_displays_overlay.set_child(this._virtual_displays_actor);
@@ -292,7 +294,9 @@ export default class BreezyDesktopExtension extends Extension {
                     'display-size',
                     'framerate-cap',
                     'look-ahead-override',
-                    'disable-anti-aliasing'
+                    'disable-anti-aliasing',
+                    'focus-mode',
+                    'zoom-on-focus-enabled'
                 ]
                 this._effect_settings_bindings.forEach(settings_key => 
                     this.settings.bind(settings_key, this._virtual_displays_actor, settings_key, Gio.SettingsBindFlags.DEFAULT)
@@ -313,6 +317,8 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
                 this._add_settings_keybinding('cursor-to-focused-display-shortcut', this._cursor_to_focused_display.bind(this));
+                this._add_settings_keybinding('focus-next-shortcut', this._focus_next.bind(this));
+                this._add_settings_keybinding('focus-previous-shortcut', this._focus_previous.bind(this));
 
                 this._fresh_session = false;
             } catch (e) {
@@ -552,6 +558,20 @@ export default class BreezyDesktopExtension extends Extension {
         }
     }
 
+    _focus_next() {
+        Globals.logger.log_debug('BreezyDesktopExtension _focus_next');
+        if (this._virtual_displays_actor) {
+            this._virtual_displays_actor.focus_next();
+        }
+    }
+
+    _focus_previous() {
+        Globals.logger.log_debug('BreezyDesktopExtension _focus_previous');
+        if (this._virtual_displays_actor) {
+            this._virtual_displays_actor.focus_previous();
+        }
+    }
+
     // for_setup should be true if our intention is to immediately re-enable the extension
     _effect_disable(for_setup = false) {
         try {
@@ -564,6 +584,8 @@ export default class BreezyDesktopExtension extends Extension {
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
             Main.wm.removeKeybinding('cursor-to-focused-display-shortcut');
+            Main.wm.removeKeybinding('focus-next-shortcut');
+            Main.wm.removeKeybinding('focus-previous-shortcut');
             
             if (global.compositor?.enable_unredirect) {
                 global.compositor.enable_unredirect();

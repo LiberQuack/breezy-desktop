@@ -46,6 +46,24 @@
         Shortcut to move the cursor to the focused display.
       </description>
     </key>
+    <key name="focus-next-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>Right']]]>
+      </default>
+      <summary>Focus next display</summary>
+      <description>
+        Shortcut to focus the next display.
+      </description>
+    </key>
+    <key name="focus-previous-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>Left']]]>
+      </default>
+      <summary>Focus previous display</summary>
+      <description>
+        Shortcut to focus the previous display.
+      </description>
+    </key>
     <key name="display-distance" type="d">
       <default>
         1.05
@@ -84,11 +102,29 @@
     </key>
     <key name="widescreen-mode" type="b">
       <default>
-        false
+        true
       </default>
       <summary>Widescreen mode</summary>
       <description>
-        Enable widescreen/SBS mode
+        Enable widescreen (SBS) mode
+      </description>
+    </key>
+    <key name="focus-mode" type="s">
+      <default>
+        "gyroscope"
+      </default>
+      <summary>Focus mode</summary>
+      <description>
+        The method for changing the focused display.
+      </description>
+    </key>
+    <key name="zoom-on-focus-enabled" type="b">
+      <default>
+        true
+      </default>
+      <summary>Zoom on focus enabled</summary>
+      <description>
+        Automatically move a display closer when it becomes focused.
       </description>
     </key>
     <key name="display-size" type="d">

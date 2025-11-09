@@ -503,9 +503,9 @@ export const VirtualDisplaysActor = GObject.registerClass({
             2.5,
             1.0
         ),
-        'display-zoom-on-focus': GObject.ParamSpec.boolean(
-            'display-zoom-on-focus',
-            'Display zoom on focus',
+        'zoom-on-focus-enabled': GObject.ParamSpec.boolean(
+            'zoom-on-focus-enabled',
+            'Zoom on focus enabled',
             'Automatically move a display closer when it becomes focused.',
             GObject.ParamFlags.READWRITE,
             true
@@ -572,6 +572,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Disable anti-aliasing for the effect',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'focus-mode': GObject.ParamSpec.string(
+            'focus-mode',
+            'Focus Mode',
+            'How the focused monitor is determined',
+            GObject.ParamFlags.READWRITE,
+            'gyroscope', ['gyroscope', 'keyboard', 'none']
         )
     }
 }, class VirtualDisplaysActor extends Clutter.Actor {
@@ -663,8 +670,11 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('custom-banner-enabled', this._handle_banner_update);
         notifyToFunction('framerate-cap', this._handle_frame_rate_cap_change);
         notifyToFunction('smooth-follow-enabled', this._handle_smooth_follow_enabled_change);
+        notifyToFunction('focused-monitor-index', this._handle_zoom_on_focus_update);
+        notifyToFunction('zoom-on-focus-enabled', this._handle_zoom_on_focus_update);
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
+        this._handle_zoom_on_focus_update();
 
         const actorToDisplayRatios = [
             global.stage.width / this.target_monitor.width, 
@@ -780,7 +790,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
                 this.focused_monitor_details = null;
-            } else if (this.imu_snapshots && 
+            } else if (this.focus_mode === 'gyroscope' &&
+                       this.imu_snapshots &&
                        (!this.smooth_follow_enabled || this.focused_monitor_index === -1) && 
                        (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
@@ -916,6 +927,14 @@ export const VirtualDisplaysActor = GObject.registerClass({
         this._update_monitor_placements();
     }
 
+    _handle_zoom_on_focus_update() {
+        if (this.zoom_on_focus_enabled && this.focused_monitor_index !== -1) {
+            this.display_distance = this.toggle_display_distance_start;
+        } else {
+            this.display_distance = this.toggle_display_distance_end;
+        }
+    }
+
     _handle_banner_update() {
         if (this.bannerActor) {
             if (this.show_banner) {
@@ -947,6 +966,28 @@ export const VirtualDisplaysActor = GObject.registerClass({
     _change_distance() {
         this.display_distance = this._is_display_distance_at_end ? 
             this.toggle_display_distance_start : this.toggle_display_distance_end;
+    }
+
+    focus_next() {
+        if (this.focus_mode !== 'keyboard') return;
+
+        if (this.focused_monitor_index === -1) {
+            this.focused_monitor_index = 0;
+        } else {
+            this.focused_monitor_index = (this.focused_monitor_index + 1) % this._all_monitors.length;
+        }
+        this.focused_monitor_details = this._all_monitors[this.focused_monitor_index];
+    }
+
+    focus_previous() {
+        if (this.focus_mode !== 'keyboard') return;
+
+        if (this.focused_monitor_index === -1) {
+            this.focused_monitor_index = this._all_monitors.length - 1;
+        } else {
+            this.focused_monitor_index = (this.focused_monitor_index - 1 + this._all_monitors.length) % this._all_monitors.length;
+        }
+        this.focused_monitor_details = this._all_monitors[this.focused_monitor_index];
     }
 
     vfunc_dispose() {

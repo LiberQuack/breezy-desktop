@@ -40,4 +40,16 @@ namespace BreezyShortcuts {
         QStringLiteral("Move Cursor to Focused Display"),
         QStringLiteral("Move Cursor to Focused Display")
     };
+
+    const Shortcut FOCUS_NEXT = {
+        Qt::CTRL | Qt::META | Qt::Key_Right,
+        QStringLiteral("Focus Next Display"),
+        QStringLiteral("Focus Next Display")
+    };
+
+    const Shortcut FOCUS_PREVIOUS = {
+        Qt::CTRL | Qt::META | Qt::Key_Left,
+        QStringLiteral("Focus Previous Display"),
+        QStringLiteral("Focus Previous Display")
+    };
 }

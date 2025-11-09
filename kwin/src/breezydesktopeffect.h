@@ -23,6 +23,7 @@ namespace KWin
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(int effectTargetScreenIndex READ effectTargetScreenIndex WRITE setEffectTargetScreenIndex)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
+    Q_PROPERTY(int focusMode READ focusMode NOTIFY focusModeChanged)
         Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
         Q_PROPERTY(bool poseResetState READ poseResetState NOTIFY poseResetStateChanged)
         Q_PROPERTY(QList<QQuaternion> poseOrientations READ poseOrientations)
@@ -72,6 +73,7 @@ namespace KWin
         void setEffectTargetScreenIndex(int index);
         bool isZoomOnFocusEnabled() const;
         void setZoomOnFocusEnabled(bool enabled);
+        int focusMode() const;
         int lookingAtScreenIndex() const { return m_lookingAtScreenIndex; }
         void setLookingAtScreenIndex(int index);
         QList<QQuaternion> poseOrientations() const;
@@ -115,6 +117,8 @@ namespace KWin
         void toggle();
         void addVirtualDisplay(QSize size);
         void updatePoseOrientation();
+        void focusNext();
+        void focusPrevious();
         void updateCursorImage();
         void updateCursorPos();
         QVariantList listVirtualDisplays() const;
@@ -131,6 +135,7 @@ namespace KWin
         void displayWrappingSchemeChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
+        void focusModeChanged();
         void poseResetStateChanged();
         void sbsEnabledChanged();
         void smoothFollowEnabledChanged();
@@ -165,6 +170,7 @@ namespace KWin
 
         bool m_enabled = false;
         bool m_zoomOnFocusEnabled = false;
+        int m_focusMode = 0; // 0=None, 1=Gyroscope, 2=Keyboard
         int m_lookingAtScreenIndex = -1;
         int m_effectTargetScreenIndex = -1;
         bool m_poseResetState;

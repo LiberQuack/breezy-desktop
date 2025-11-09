@@ -62,17 +62,36 @@
          </property>
         </widget>
      </item>
-     <item row="1" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
+        <widget class="QComboBox" name="kcfg_FocusMode">
+          <item>
+            <property name="text">
+              <string>None</string>
+            </property>
+          </item>
+          <item>
+            <property name="text">
+              <string>Gyroscope</string>
+            </property>
+          </item>
+          <item>
+            <property name="text">
+              <string>Keyboard</string>
+            </property>
+          </item>
+        </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
         <widget class="QCheckBox" name="kcfg_ZoomOnFocusEnabled">
          <property name="text">
-          <string>Zoom on Focus</string>
+          <string>Zoom on focus</string>
          </property>
          <property name="checked">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
+      </item>
+     <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="kcfg_CurvedDisplay">
          <property name="text">
           <string>Curved display</string>
