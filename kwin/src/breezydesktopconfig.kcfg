@@ -17,10 +17,17 @@
             <max>230</max>
             <label>All Displays Distance</label>
         </entry>
+        <entry name="FocusMode" type="Int">
+            <default>0</default>
+            <min>0</min>
+            <max>2</max>
+            <label>Focus Mode</label>
+            <description>The method for changing the focused display: 0=None, 1=Gyroscope, 2=Keyboard</description>
+        </entry>
         <entry name="ZoomOnFocusEnabled" type="Bool">
-            <default>false</default>
-            <label>Zoom on Focus Enabled</label>
-            <description>Enable zooming in on the focused display.</description>
+            <default>true</default>
+            <label>Zoom on focus</label>
+            <description>Automatically move a display closer when it becomes focused.</description>
         </entry>
         <entry name="DisplaySpacing" type="Int">
             <default>0</default>
@@ -90,6 +97,16 @@
             <default>false</default>
             <label>Curved display</label>
             <description>Curve the displays around you</description>
+        </entry>
+        <entry name="FocusNext" type="Shortcut">
+            <default>Ctrl+Meta+Right</default>
+            <label>Focus next display</label>
+            <description>Focus the next display</description>
+        </entry>
+        <entry name="FocusPrevious" type="Shortcut">
+            <default>Ctrl+Meta+Left</default>
+            <label>Focus previous display</label>
+            <description>Focus the previous display</description>
         </entry>
     </group>
 </kcfg>

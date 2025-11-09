@@ -32,7 +32,8 @@ class ConnectedDevice(Gtk.Box):
     device_label = Gtk.Template.Child()
     effect_enable_switch = Gtk.Template.Child()
     disable_physical_displays_switch = Gtk.Template.Child()
-    display_zoom_on_focus_switch = Gtk.Template.Child()
+    focus_mode_row = Gtk.Template.Child()
+    zoom_on_focus_switch = Gtk.Template.Child()
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
@@ -58,6 +59,10 @@ class ConnectedDevice(Gtk.Box):
     toggle_follow_shortcut_label = Gtk.Template.Child()
     reassign_cursor_to_focused_display_shortcut_button = Gtk.Template.Child()
     cursor_to_focused_display_shortcut_label = Gtk.Template.Child()
+    reassign_focus_next_shortcut_button = Gtk.Template.Child()
+    focus_next_shortcut_label = Gtk.Template.Child()
+    reassign_focus_previous_shortcut_button = Gtk.Template.Child()
+    focus_previous_shortcut_label = Gtk.Template.Child()
     headset_display_as_viewport_center_switch = Gtk.Template.Child()
     headset_as_primary_switch = Gtk.Template.Child()
     remove_virtual_displays_on_disable_switch = Gtk.Template.Child()
@@ -89,7 +94,7 @@ class ConnectedDevice(Gtk.Box):
         self.init_template()
         self.active = True
         self.all_enabled_state_inputs = [
-            self.display_zoom_on_focus_switch,
+            self.zoom_on_focus_switch,
             # self.display_size_scale,
             self.follow_mode_switch,
             self.follow_threshold_scale,
@@ -115,6 +120,7 @@ class ConnectedDevice(Gtk.Box):
 
         self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::display-distance', self._handle_display_distance)
+        self.settings.bind('zoom-on-focus-enabled', self.zoom_on_focus_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -132,7 +138,9 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('viewport-offset-y', self.viewport_offset_y_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::monitor-wrapping-scheme', self._handle_monitor_wrapping_scheme_setting_changed)
         self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.display_zoom_on_focus_switch.connect('notify::active', self._handle_zoom_on_focus_switch_changed)
+        self.settings.connect('changed::focus-mode', self._handle_focus_mode_setting_changed)
+        self.focus_mode_row.connect('notify::selected', self._handle_focus_mode_row_changed)
+        self._handle_focus_mode_setting_changed(self.settings, self.settings.get_string('focus-mode'))
         self.monitor_wrapping_scheme_menu.connect('changed', self._handle_monitor_wrapping_scheme_menu_changed)
         self._handle_monitor_wrapping_scheme_setting_changed(self.settings, self.settings.get_string('monitor-wrapping-scheme'))
 
@@ -141,7 +149,9 @@ class ConnectedDevice(Gtk.Box):
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
             [self.reassign_toggle_display_distance_shortcut_button, self.toggle_display_distance_shortcut_label],
             [self.reassign_toggle_follow_shortcut_button, self.toggle_follow_shortcut_label],
-            [self.reassign_cursor_to_focused_display_shortcut_button, self.cursor_to_focused_display_shortcut_label]
+            [self.reassign_cursor_to_focused_display_shortcut_button, self.cursor_to_focused_display_shortcut_label],
+            [self.reassign_focus_next_shortcut_button, self.focus_next_shortcut_label],
+            [self.reassign_focus_previous_shortcut_button, self.focus_previous_shortcut_label]
         ])
 
         self.change_focused_display_distance_button.connect('clicked', 
@@ -228,21 +238,29 @@ class ConnectedDevice(Gtk.Box):
         switch.set_active(self.config_manager.get_property(config_key))
         switch.connect('notify::active', lambda widget, param: self.config_manager.set_property(config_key, widget.get_active()))
     
-    def _handle_zoom_on_focus_switch_changed(self, widget, param):
-        display_distance = self.settings.get_double('display-distance')
-        toggle_display_distance_end = self.settings.get_double('toggle-display-distance-end')
-        toggle_display_distance_start = self.settings.get_double('toggle-display-distance-start')
-        is_zoom_on_focus_already_enabled = display_distance < toggle_display_distance_end
-        if widget.get_active() and not is_zoom_on_focus_already_enabled:
-            self.settings.set_double('display-distance', toggle_display_distance_start)
-        elif not widget.get_active() and is_zoom_on_focus_already_enabled:
-            self.settings.set_double('display-distance', toggle_display_distance_end)
-
     def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
         self.monitor_wrapping_scheme_menu.set_active_id(val)
 
     def _handle_monitor_wrapping_scheme_menu_changed(self, widget):
         self.settings.set_string('monitor-wrapping-scheme', widget.get_active_id())
+
+    def _handle_focus_mode_setting_changed(self, settings, key):
+        val = settings.get_string(key)
+        if val == 'gyroscope':
+            self.focus_mode_row.set_selected(1)
+        elif val == 'keyboard':
+            self.focus_mode_row.set_selected(2)
+        else:
+            self.focus_mode_row.set_selected(0)
+
+    def _handle_focus_mode_row_changed(self, widget, val):
+        selected = widget.get_selected()
+        if selected == 1:
+            self.settings.set_string('focus-mode', 'gyroscope')
+        elif selected == 2:
+            self.settings.set_string('focus-mode', 'keyboard')
+        else:
+            self.settings.set_string('focus-mode', 'none')
 
     def _handle_enabled_features(self, state_manager, val):
         enabled_breezy_features = [feature for feature in state_manager.get_property('enabled-features-list') if feature in BREEZY_GNOME_FEATURES]
@@ -305,31 +323,23 @@ class ConnectedDevice(Gtk.Box):
     def set_device_name(self, name):
         self.device_label.set_markup(f"<b>{name}</b>")
 
-    def _handle_display_distance(self, *args):
-        display_distance = self.settings.get_double('display-distance')
-        toggle_display_distance_end = self.settings.get_double('toggle-display-distance-end')
-
-        should_zoom_on_focus_be_enabled = display_distance < toggle_display_distance_end
-        if self.display_zoom_on_focus_switch.get_active() != should_zoom_on_focus_be_enabled:
-            self.display_zoom_on_focus_switch.set_active(should_zoom_on_focus_be_enabled)
-
     def _set_focused_display_distance(self, distance):
         self.focused_display_distance_label.set_markup(f"{_('Focused display')}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-start', distance)
 
-        self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-end'))
+        self.zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-end'))
 
     def _set_all_displays_distance(self, distance):
         self.all_displays_distance_label.set_markup(f"{_('All displays')}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-end', distance)
-        self.display_zoom_on_focus_switch.set_active(False)
-        self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-start'))
+        self.zoom_on_focus_switch.set_active(False)
+        self.zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-start'))
 
     def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit):
         dialog = DisplayDistanceDialog(settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit)
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
         dialog.present()
-            
+
     def _on_set_all_displays_distance(self, prev_distance, distance):
         focused_display_distance = self.settings.get_double('toggle-display-distance-start')
         all_displays_distance = self.settings.get_double('toggle-display-distance-end')

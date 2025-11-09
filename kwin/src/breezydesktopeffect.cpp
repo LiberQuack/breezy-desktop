@@ -136,6 +136,14 @@ BreezyDesktopEffect::BreezyDesktopEffect()
         BreezyShortcuts::CURSOR_TO_FOCUSED_DISPLAY,
         [this]() { this->moveCursorToFocusedDisplay(); }
     );
+    setupGlobalShortcut(
+        BreezyShortcuts::FOCUS_NEXT,
+        [this]() { this->focusNext(); }
+    );
+    setupGlobalShortcut(
+        BreezyShortcuts::FOCUS_PREVIOUS,
+        [this]() { this->focusPrevious(); }
+    );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
@@ -233,7 +241,11 @@ void BreezyDesktopEffect::recenter() {
 void BreezyDesktopEffect::setLookingAtScreenIndex(int index)
 {
     m_lookingAtScreenIndex = index;
-    if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
+    if (m_focusMode == 1 && m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
+}
+
+int BreezyDesktopEffect::focusMode() const {
+    return m_focusMode;
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
@@ -243,8 +255,12 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
-    setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
     setSmoothFollowThreshold(BreezyDesktopConfig::smoothFollowThreshold());
+
+    int focusMode = BreezyDesktopConfig::focusMode();
+    if (m_focusMode != focusMode) { m_focusMode = focusMode; Q_EMIT focusModeChanged(); }
+
+    setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
 
     qreal horiz = BreezyDesktopConfig::displayHorizontalOffset() / 100.0f;
     qreal vert = BreezyDesktopConfig::displayVerticalOffset() / 100.0f;
@@ -946,6 +962,38 @@ void BreezyDesktopEffect::moveCursorToFocusedDisplay()
     if (m_lookingAtScreenIndex == -1) return;
 
     warpPointerToOutputCenter(effects->screens().at(m_lookingAtScreenIndex));
+}
+
+void BreezyDesktopEffect::focusNext()
+{
+    if (m_focusMode != 2) return;
+
+    const auto screens = effects->screens();
+    if (screens.isEmpty()) {
+        return;
+    }
+
+    if (m_lookingAtScreenIndex == -1) {
+        m_lookingAtScreenIndex = 0;
+    } else {
+        m_lookingAtScreenIndex = (m_lookingAtScreenIndex + 1) % screens.count();
+    }
+}
+
+void BreezyDesktopEffect::focusPrevious()
+{
+    if (m_focusMode != 2) return;
+
+    const auto screens = effects->screens();
+    if (screens.isEmpty()) {
+        return;
+    }
+
+    if (m_lookingAtScreenIndex == -1) {
+        m_lookingAtScreenIndex = screens.count() - 1;
+    } else {
+        m_lookingAtScreenIndex = (m_lookingAtScreenIndex - 1 + screens.count()) % screens.count();
+    }
 }
 }
 
