@@ -23,4 +23,4 @@ target_link_libraries(xr_driver_ipc
     PRIVATE Qt6::Core
 )
 
-install(FILES ../../../ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py xrdriveripc_runner.py DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
+install(FILES ../../../ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
