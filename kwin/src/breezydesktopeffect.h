@@ -1,6 +1,5 @@
 #pragma once
 
-#include "kcm/shortcuts.h"
 #include <effect/quickeffect.h>
 
 #include <QAction>
@@ -154,7 +153,7 @@ namespace KWin
     private:
         void teardown();
         bool checkParityByte(const char* data);
-        void setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, 
+        void setupGlobalShortcut(const QString &actionName, const QString &defaultShortcut, const QString &label,
                                  std::function<void()> triggeredFunc);
         void recenter();
         void toggleSmoothFollow();

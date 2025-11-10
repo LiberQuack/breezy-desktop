@@ -115,33 +115,47 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     setupGlobalShortcut(
-        BreezyShortcuts::TOGGLE,
+        QStringLiteral("Toggle XR Effect"),
+        QStringLiteral("Ctrl+Meta+Backslash"),
+        QStringLiteral("Toggle XR Effect"),
         [this]() { this->toggle(); }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::RECENTER,
+        QStringLiteral("Recenter"),
+        QStringLiteral("Ctrl+Meta+Space"),
+        QStringLiteral("Recenter"),
         [this]() { this->recenter(); }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS,
+        QStringLiteral("Toggle Zoom on Focus"),
+        QStringLiteral("Ctrl+Meta+0"),
+        QStringLiteral("Toggle Zoom on Focus"),
         [this]() { 
             this->setZoomOnFocusEnabled(!m_zoomOnFocusEnabled);
         }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::TOGGLE_FOLLOW_MODE,
+        QStringLiteral("Toggle Follow Mode"),
+        QStringLiteral("Ctrl+Meta+Return"),
+        QStringLiteral("Toggle Follow Mode"),
         [this]() { this->toggleSmoothFollow(); }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::CURSOR_TO_FOCUSED_DISPLAY,
+        QStringLiteral("Move Cursor to Focused Display"),
+        QStringLiteral("Ctrl+Meta+."),
+        QStringLiteral("Move Cursor to Focused Display"),
         [this]() { this->moveCursorToFocusedDisplay(); }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::FOCUS_NEXT,
+        QStringLiteral("Focus Next Display"),
+        QStringLiteral("Ctrl+Meta+Right"),
+        QStringLiteral("Focus Next Display"),
         [this]() { this->focusNext(); }
     );
     setupGlobalShortcut(
-        BreezyShortcuts::FOCUS_PREVIOUS,
+        QStringLiteral("Focus Previous Display"),
+        QStringLiteral("Ctrl+Meta+Left"),
+        QStringLiteral("Focus Previous Display"),
         [this]() { this->focusPrevious(); }
     );
 
@@ -223,12 +237,16 @@ BreezyDesktopEffect::~BreezyDesktopEffect()
     deactivate();
 }
 
-void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, std::function<void()> triggeredFunc) {
+void BreezyDesktopEffect::setupGlobalShortcut(const QString &actionName, const QString &defaultShortcut, const QString &label, std::function<void()> triggeredFunc) {
     QAction *action = new QAction(this);
-    action->setObjectName(shortcut.actionName);
-    action->setText(shortcut.actionText);
-    KGlobalAccel::self()->setDefaultShortcut(action, {shortcut.shortcut});
-    KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
+    action->setObjectName(actionName);
+    action->setText(label);
+    KGlobalAccel::self()->setDefaultShortcut(action, {QKeySequence(defaultShortcut)});
+    if (actionName == QStringLiteral("Focus Next Display")) {
+        KGlobalAccel::self()->setShortcut(action, {QKeySequence(BreezyDesktopConfig::focusNext())});
+    } else if (actionName == QStringLiteral("Focus Previous Display")) {
+        KGlobalAccel::self()->setShortcut(action, {QKeySequence(BreezyDesktopConfig::focusPrevious())});
+    }
     connect(action, &QAction::triggered, this, triggeredFunc);
 }
 

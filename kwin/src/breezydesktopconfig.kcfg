@@ -98,12 +98,12 @@
             <label>Curved display</label>
             <description>Curve the displays around you</description>
         </entry>
-        <entry name="FocusNext" type="Shortcut">
+        <entry name="FocusNext" type="String">
             <default>Ctrl+Meta+Right</default>
             <label>Focus next display</label>
             <description>Focus the next display</description>
         </entry>
-        <entry name="FocusPrevious" type="Shortcut">
+        <entry name="FocusPrevious" type="String">
             <default>Ctrl+Meta+Left</default>
             <label>Focus previous display</label>
             <description>Focus the previous display</description>
