@@ -20,7 +20,7 @@ jobs:
         run: sudo docker run --rm -t -v ${{ github.workspace }}:/source -w /source/kwin --platform linux/amd64 "breezy-kwin" bin/package_kwin_plugin
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: breezy-kwin-plugin
           path: kwin/out/breezyKWinPlugin-x86_64.tar.gz
