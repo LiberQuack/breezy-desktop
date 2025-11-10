@@ -40,5 +40,5 @@ configure_file(
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/breezy_desktop.desktop
         DESTINATION ${KDE_INSTALL_APPDIR})
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/com.xronlinux.BreezyDesktop.svg
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../../ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg
         DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
